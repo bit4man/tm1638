@@ -1,0 +1,45 @@
+  //demonstration of button reads on the TM1638 LED & KEY board
+const int strobePin = 8;
+const int clockPin = 9;
+const int dataPin = 10;
+int keys1;
+int keys2;
+int keys3;
+int keys4;
+
+
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(strobePin, OUTPUT);
+  pinMode(clockPin, OUTPUT);
+  pinMode(dataPin, OUTPUT);
+  digitalWrite(strobePin, LOW); //set the strobe low so it'll accept instruction
+  shiftOut(dataPin, clockPin, LSBFIRST, 0x8F);  // activate and set brightness to max
+  digitalWrite(strobePin, HIGH);
+  
+  
+}
+
+void loop()
+{
+  digitalWrite(strobePin, LOW); //set the strobe low so it'll accept instruction
+  shiftOut(dataPin, clockPin, LSBFIRST, 0x42);  // activate and set brightness to max
+  pinMode(dataPin, INPUT_PULLUP); //Instruction received, board changes DIO to OUTPUT, we now need to set the pin as INPUT
+  keys1 = shiftIn(dataPin, clockPin, LSBFIRST); // read in first byte of data
+  keys2 = shiftIn(dataPin, clockPin, LSBFIRST); // read in first byte of data
+  keys3 = shiftIn(dataPin, clockPin, LSBFIRST); // read in first byte of data
+  keys4 = shiftIn(dataPin, clockPin, LSBFIRST); // read in first byte of data
+  Serial.print("  Byte 0:");
+  Serial.print(keys1);
+  Serial.print("  Byte 1:");
+  Serial.print(keys2);
+  Serial.print("  Byte 2:");
+  Serial.print(keys3);
+  Serial.print("  Byte 3:");
+  Serial.println(keys4);
+  digitalWrite(strobePin, HIGH); // all data is received, and just like any other instruction, the strobe line must go high when finished
+  pinMode(dataPin, OUTPUT); //having sent all data, the board now sets the DIO line as INPUT, we switch the arduino back to OUTPUT
+  delay(10);  // just give the serial monitor a brief delay so we can read stuff
+
+}

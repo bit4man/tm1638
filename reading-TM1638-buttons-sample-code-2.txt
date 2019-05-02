@@ -1,0 +1,68 @@
+  //demonstration of button reads on the TM1638 LED & KEY board
+const int strobePin = 8;
+const int clockPin = 9;
+const int dataPin = 10;
+int keys1;
+int keys2;
+int keys3;
+int keys4;
+int LEDarray;
+
+
+void setup()
+{
+  pinMode(strobePin, OUTPUT);
+  pinMode(clockPin, OUTPUT);
+  pinMode(dataPin, OUTPUT);
+  digitalWrite(strobePin, LOW); //set the strobe low so it'll accept instruction
+  shiftOut(dataPin, clockPin, LSBFIRST, 0x40);  // set up sequential mode write
+  digitalWrite(strobePin, HIGH);  //end of instruction, strobe must go high
+  digitalWrite(strobePin, LOW); //start of data for sequential write, strobe must go low
+  shiftOut(dataPin, clockPin, LSBFIRST, 0xC0);  // sets up the first address
+  for (int displayAddress = 1; displayAddress < 17; displayAddress++) {
+    shiftOut(dataPin, clockPin, LSBFIRST, 0x00);  // blanks out the display
+  }
+  digitalWrite(strobePin, HIGH); //end of writing to displays, so we set the strobe high again.
+  digitalWrite(strobePin, LOW); //set the strobe low so it'll accept instruction
+  shiftOut(dataPin, clockPin, LSBFIRST, 0x8F);  // activate the display and set brightness to max
+  digitalWrite(strobePin, HIGH);
+  
+  
+}
+
+void loop()
+{
+  digitalWrite(strobePin, LOW); //set the strobe low so it'll accept instruction
+  shiftOut(dataPin, clockPin, LSBFIRST, 0x42);  // send the "read buttons" instruction
+  pinMode(dataPin, INPUT_PULLUP); //Instruction received, board changes DIO to OUTPUT, we now need to set the pin as INPUT
+  keys1 = shiftIn(dataPin, clockPin, LSBFIRST); // read in first byte of data
+  keys2 = shiftIn(dataPin, clockPin, LSBFIRST); // read in first byte of data
+  keys3 = shiftIn(dataPin, clockPin, LSBFIRST); // read in first byte of data
+  keys4 = shiftIn(dataPin, clockPin, LSBFIRST); // read in first byte of data
+  digitalWrite(strobePin, HIGH); // all data is received, and just like any other instruction, the strobe line must go high when finished
+  pinMode(dataPin, OUTPUT); //having sent all data, the TM1638 board now sets the DIO line as INPUT, we switch the arduino back to OUTPUT
+  
+  bitWrite(LEDarray, 0, bitRead(keys1,0));
+  bitWrite(LEDarray, 1, bitRead(keys2,0));
+  bitWrite(LEDarray, 2, bitRead(keys3,0));
+  bitWrite(LEDarray, 3, bitRead(keys4,0));
+  bitWrite(LEDarray, 4, bitRead(keys1,4));
+  bitWrite(LEDarray, 5, bitRead(keys2,4));
+  bitWrite(LEDarray, 6, bitRead(keys3,4));
+  bitWrite(LEDarray, 7, bitRead(keys4,4));
+  
+  //we'll now write to the 8 discrete LED's, checking individual bits in the LEDarray variable
+  digitalWrite(strobePin, LOW); //set strobe low for an instruction
+  shiftOut(dataPin, clockPin, LSBFIRST, 0x40); //set up sequential addressing
+  digitalWrite(strobePin, HIGH);  //end of instruction, strobe must go high
+  digitalWrite(strobePin, LOW); //start of data, strobe must go low
+  shiftOut(dataPin, clockPin, LSBFIRST, 0xC0);  // sets up the first address as the first discrete LED, 0001
+  
+  for (int whichBit = 0; whichBit < 8; whichBit++) { //we'll read the 8 bits from the LEDarray variable
+      shiftOut(dataPin, clockPin, LSBFIRST, 0x00);  // next display in the sequence will be a 7 segment, so we'll clear it.
+      shiftOut(dataPin, clockPin, LSBFIRST, bitRead(LEDarray, whichBit));  // writes to the discrete LED we're at;
+      
+  }
+    digitalWrite(strobePin, HIGH); //we're done here, set the strobe high again.
+    
+}
