@@ -6,17 +6,19 @@
 #define TM1638_h
 
 #include "Arduino.h"
+#include <timer.h>
 
 class TM1638
 {
   public:
     TM1638(int _strobePin, int _clockPin, int _dataPin);
 
-    TM1638() ;
-
     void displayNum(byte display, int value);
+    void displayHex(byte display, int value);
     void setLed(byte led, bool state);
     void updateDisplay();
+    bool timerUpdate(void *);
+    bool isKeyPressed(int key);
 
   private:
     void init(int _strobePin, int _clockPin, int _dataPin);
@@ -26,7 +28,7 @@ class TM1638
     int strobePin, clockPin, dataPin;
 
     byte intensity;
-    byte ledOut[16]; // All 16 addressable LED/7Segment units
+    volatile byte ledOut[16]; // All 16 addressable LED/7Segment units
     bool dirty;
 
     const byte values[17] = {
@@ -64,7 +66,7 @@ class TM1638
       , 0x0F
     };
 
-    bool keyStatus[8];
+    volatile bool keyStatus[8];
 
     void setWriteMode();
 
@@ -87,10 +89,6 @@ class TM1638
     void sendAdrValue(byte adr, byte val);
 
     void blank();
-
-    void setLed(byte led);
-
-    void resetLed(byte led);
 
 };
 
