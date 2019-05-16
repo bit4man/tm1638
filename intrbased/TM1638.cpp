@@ -58,11 +58,13 @@ void TM1638::updateDisplay() {
     }
     digitalWrite(strobePin, HIGH); //set the strobe low so it'll accept instruction
   }
+  readButtons();
+  /*
   int w=10;
   if (w-- == 0) { 
     readButtons();
     w=10;
-  }
+  } */
 }
 
 bool TM1638::timerUpdate(void *) {

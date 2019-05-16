@@ -59,6 +59,7 @@ bool nextLed(void *) {
           state = 0;
         }
         break;
+    default: state=0;     
   }
   if (state > 3) state = 0;
   return doLed;
