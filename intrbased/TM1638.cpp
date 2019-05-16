@@ -167,6 +167,10 @@ void TM1638::setLed(byte led, bool state) {
   }
 }
 
+void TM1638::blankLed() {
+  for (int i=0; i<8; i++) ledOut[leds[i]] = 0;
+}
+
 bool TM1638::isKeyPressed(int key) {
   return keyStatus[key-1];
 }

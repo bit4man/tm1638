@@ -6,7 +6,8 @@
 #include <timer.h>
 
 TM1638 board(5, 6, 7);
-Timer<10> timer;
+Timer<> timer;
+
 volatile byte led = 0;
 volatile int cnt = 0;
 bool doCount=true;
@@ -28,8 +29,9 @@ bool timerUpdate(void *) {
   return true;
 }
 
+int state=0;
+
 bool nextLed(void *) {
-  static int state = 0;
   switch (state) {
     case 0:
         board.setLed(led, false);
@@ -74,7 +76,9 @@ bool count(void *) {
 }
 
 void startLed() {
-  doLed=true;  
+  doLed=true;
+  board.blankLed();
+  state=0;
   timer.every(877, nextLed);
 }
 
@@ -98,11 +102,12 @@ void setup() {
 void loop() {
   if (board.isKeyPressed(1)) {
     doCount=false;
-    Serial.println("Key 1 pressed");
   }
   if (board.isKeyPressed(2)) startCount();
-  if (board.isKeyPressed(3)) doLed=false;
+  if (board.isKeyPressed(3)) { 
+    doLed=false;
+  }
   if (board.isKeyPressed(4)) startLed();
   timer.tick();
-  delayMicroseconds(50);
+  delayMicroseconds(5);
 }

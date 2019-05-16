@@ -20,6 +20,9 @@ class TM1638
     bool timerUpdate(void *);
     bool isKeyPressed(int key);
 
+    void blank();
+    void blankLed();
+    
   private:
     void init(int _strobePin, int _clockPin, int _dataPin);
 
@@ -87,8 +90,6 @@ class TM1638
     void readButtons();
 
     void sendAdrValue(byte adr, byte val);
-
-    void blank();
 
 };
 
