@@ -48,6 +48,9 @@ void TM1638::startAddressMode() {
 
 
 void TM1638::updateDisplay() {
+  static volatile bool inUpdate=false;
+  if (inUpdate) return;
+  inUpdate=true;
   if (dirty) {
     dirty = false;
     startAddressMode();
@@ -59,12 +62,7 @@ void TM1638::updateDisplay() {
     digitalWrite(strobePin, HIGH); //set the strobe low so it'll accept instruction
   }
   readButtons();
-  /*
-  int w=10;
-  if (w-- == 0) { 
-    readButtons();
-    w=10;
-  } */
+  inUpdate=false;
 }
 
 bool TM1638::timerUpdate(void *) {

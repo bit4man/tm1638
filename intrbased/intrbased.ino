@@ -6,12 +6,12 @@
 #include <timer.h>
 
 TM1638 board(5, 6, 7);
-Timer<> timer;
+Timer<3> timer;
 
-volatile byte led = 0;
+volatile byte led = 1;
 volatile int cnt = 0;
-bool doCount=true;
-bool doLed=true;
+volatile bool doCount=true;
+volatile bool doLed=true;
 
 volatile int st = HIGH;
 bool blink(void *) {
@@ -57,7 +57,7 @@ bool nextLed(void *) {
         break;
     case 3:
         board.setLed(led, false);
-        if (--led == 0) {
+        if (--led == 1) {
           state = 0;
         }
         break;
@@ -69,8 +69,8 @@ bool nextLed(void *) {
 
 bool count(void *) {
   if (cnt > 9999) cnt = 0;
-  board.displayNum(0, cnt++);
-  board.displayHex(1, cnt);
+  board.displayNum(0, cnt);
+  board.displayHex(1, cnt++);
 //  if (random(20) < 5) board.displayNum(1, random(999));
   return doCount;
 }
@@ -84,7 +84,7 @@ void startLed() {
 
 void startCount() {
   doCount=true; 
-  timer.every(78, count);
+  timer.every(255, count);
 }
 
 void setup() {
@@ -93,13 +93,13 @@ void setup() {
   digitalWrite(LED_BUILTIN, LOW);
   // board.setLed(2, true);
   timer.every(250, blink);
-  timer.every(20, timerUpdate);
   startLed();
   startCount();
 }
 
 
 void loop() {
+  board.updateDisplay();
   if (board.isKeyPressed(1)) {
     doCount=false;
   }
